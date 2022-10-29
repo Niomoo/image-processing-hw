@@ -174,71 +174,70 @@ namespace ImageProcessingHw1
         {
             Bitmap HistogramEqualizationImage = new Bitmap(openImg.Width, openImg.Height);
 
-            int rows = openImg.Height;
-            int cols = openImg.Width;
-            int pixels = rows * cols;
+            int grayLevel = 256;
+            double[] CountingTimes = new double[grayLevel];
+            double[] SumCounting = new double[grayLevel];
+            double[] Probability = new double[grayLevel];
+            int pixelNum = 0;
 
-            int[] rGrade = new int[256];
-            int[] gGrade = new int[256];
-            int[] bGrade = new int[256];
-
-            int rLastValue = 0;
-            int gLastValue = 0;
-            int bLastValue = 0;
-            int rMinCDF = 255;
-            int gMinCDF = 255;
-            int bMinCDF = 255;
-
-            byte[] rNew = new byte[256];
-            byte[] gNew = new byte[256];
-            byte[] bNew = new byte[256];
-
-            for (int y = 0; y < rows; y++)
+            for (int y = 0; y < openImg.Height; y++)
             {
-                for (int x = 0; x < cols; x++)
+                for (int x = 0; x < openImg.Width; x++)
                 {
-                    rGrade[openImg.GetPixel(x, y).R]++;
-                    gGrade[openImg.GetPixel(x, y).G]++;
-                    bGrade[openImg.GetPixel(x, y).B]++;
-                }
-            }
-            rMinCDF = rGrade[0];
-            gMinCDF = gGrade[0];
-            bMinCDF = bGrade[0];
-
-            for (int i = 0; i < 256; i++)
-            {
-                rGrade[i] += rLastValue;
-                gGrade[i] += gLastValue;
-                bGrade[i] += bLastValue;
-                if (rGrade[i] != rLastValue)
-                {
-                    rLastValue = rGrade[i];
-                    rNew[i] = (byte)(255 * (rLastValue - rMinCDF) / (pixels - rMinCDF));
-                }
-                if (gGrade[i] != gLastValue)
-                {
-                    gLastValue = gGrade[i];
-                    gNew[i] = (byte)(255 * (gLastValue - gMinCDF) / (pixels - gMinCDF));
-                }
-                if (bGrade[i] != bLastValue)
-                {
-                    bLastValue = rGrade[i];
-                    bNew[i] = (byte)(255 * (bLastValue - bMinCDF) / (pixels - bMinCDF));
+                    CountingTimes[openImg.GetPixel(x, y).R]++;
+                    pixelNum++;
                 }
             }
 
-            for (int y = 0; y < rows; y++)
+            for (int i = 0; i < grayLevel; i++)
             {
-                for (int x = 0; x < cols; x++)
+                chart1.Series[0].Points.AddXY(i + 1, CountingTimes[i]);
+                if (i == 0)
                 {
-                    HistogramEqualizationImage.SetPixel(x, y, Color.FromArgb(rNew[openImg.GetPixel(x, y).R], gNew[openImg.GetPixel(x, y).G], bNew[openImg.GetPixel(x, y).B]));
+                    SumCounting[i] = CountingTimes[i];
+                    Probability[i] = Math.Round(SumCounting[i] * 255 / pixelNum);
+                }
+                else
+                {
+                    SumCounting[i] = SumCounting[i - 1] + CountingTimes[i];
+                    Probability[i] = Math.Round(SumCounting[i] * 255 / pixelNum); 
                 }
             }
 
+            for (int y = 0; y < openImg.Height; y++)
+            {
+                for (int x = 0; x < openImg.Width; x++)
+                {
+                    int s = (int)Math.Round(Probability[openImg.GetPixel(x, y).R]);
+                    HistogramEqualizationImage.SetPixel(x, y, Color.FromArgb(s, s, s));
+
+                }
+            }
+
+            for (int i = 0; i < grayLevel; i++)
+            {
+                chart1.Series[0].Points.AddXY(i + 1, CountingTimes[i]);
+                chart2.Series[0].Points.AddXY(Probability[i], CountingTimes[i]);
+            }
             pictureBox2.Image = HistogramEqualizationImage;
             processImg = HistogramEqualizationImage;
             lastImg = HistogramEqualizationImage;
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Bitmap ThresholdImage = new Bitmap(openImg.Width, openImg.Height);
+
+            for (int y = 0; y < openImg.Height - 2; y++)
+            {
+                for (int x = 0; x < openImg.Width - 2; x++)
+                {
+                    Color RGB = openImg.GetPixel(x, y);
+                }
+            }
+            pictureBox2.Image = ThresholdImage;
+            processImg = ThresholdImage;
+            lastImg = ThresholdImage;
         }
     }
 }
