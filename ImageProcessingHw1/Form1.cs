@@ -15,6 +15,7 @@ namespace ImageProcessingHw1
         private Bitmap openImg;
         private Bitmap processImg;
         private Bitmap lastImg;
+        private Bitmap connectedImg;
         public Form1()
         {
             InitializeComponent();
@@ -22,6 +23,7 @@ namespace ImageProcessingHw1
             label4.Visible = false;
             chart1.Visible = false;
             chart2.Visible = false;
+            label5.Visible = false;
         }
 
         private void button17_Click(object sender, EventArgs e)
@@ -29,8 +31,10 @@ namespace ImageProcessingHw1
             openFileDialog1.Filter = "All Files|*.*|Bitmap Files (.bmp)|*.bmp|Jpeg File(.jpg)|*.jpg";
             label3.Visible = false;
             label4.Visible = false;
+            label5.Visible = false;
             chart1.Visible = false;
             chart2.Visible = false;
+
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 openImg = new Bitmap(openFileDialog1.FileName);
@@ -422,6 +426,63 @@ namespace ImageProcessingHw1
             }
             pictureBox2.Image = ThresholdOverlapImage;
             processImg = ThresholdOverlapImage;
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+            connectedImg = new Bitmap(openImg.Width, openImg.Height);
+            connectedImg = openImg.Clone(new Rectangle(0, 0, openImg.Width, openImg.Height), System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+            int count = 0;
+            for (int y = 0; y < openImg.Height; y++)
+            {
+                for (int x = 0; x < openImg.Width; x++)
+                {
+                    if (connectedImg.GetPixel(x, y).R == 0)
+                    {
+                        findConnected(y, x);
+                        count++;
+                    }
+                }
+            }
+            label5.Text = "Number of connected component: " + count.ToString();
+            label5.Visible = true;
+            pictureBox2.Image = connectedImg;
+            processImg = connectedImg;
+        }
+        private void findConnected(int i, int j)
+        {
+            if (connectedImg.GetPixel(j, i).R == 255) { return; }
+            else if (connectedImg.GetPixel(j, i).R == 0)
+            {
+                Random r = new Random();
+                connectedImg.SetPixel(j, i, Color.FromArgb(r.Next(256), r.Next(256), r.Next(256)));
+
+                if (i > 0 && j > 0) { findConnected(i - 1, j - 1); }                                   // 左上
+                if (i > 0) { findConnected(i - 1, j); }                                                // 上
+                if (i > 0 && j < openImg.Width - 1) { findConnected(i - 1, j + 1); }                   // 右上
+                if (j > 0) { findConnected(i, j - 1); }                                                // 左
+                if (j < openImg.Width - 1) { findConnected(i, j + 1); }                                // 右
+                if (i < openImg.Height - 1 && j > 0) { findConnected(i + 1, j - 1); }                  // 左下
+                if (i < openImg.Height - 1) { findConnected(i + 1, j); }                               // 下
+                if (i < openImg.Height - 1 && j < openImg.Width - 1) { findConnected(i + 1, j + 1); }  // 右下
+            }
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            lastImg = processImg;
+            Bitmap RegistrationImage = new Bitmap(openImg.Width, openImg.Height);
+
+            for (int y = 0; y < openImg.Height - 2; y++)
+            {
+                for (int x = 0; x < openImg.Width - 2; x++)
+                {
+                    Color RGB = openImg.GetPixel(x, y);
+                }
+            }
+            pictureBox2.Image = RegistrationImage;
+            processImg = RegistrationImage;
         }
     }
 }

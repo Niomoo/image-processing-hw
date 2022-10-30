@@ -28,12 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea13 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend13 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series13 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea14 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend14 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series14 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea19 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend19 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series19 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea20 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend20 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series20 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -72,6 +72,7 @@
             this.chart2 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.label5 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -315,6 +316,7 @@
             this.button13.TabIndex = 0;
             this.button13.Text = "Connected Component";
             this.button13.UseVisualStyleBackColor = true;
+            this.button13.Click += new System.EventHandler(this.button13_Click);
             // 
             // groupBox8
             // 
@@ -334,6 +336,7 @@
             this.button14.TabIndex = 0;
             this.button14.Text = "Image Registration";
             this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
             // label1
             // 
@@ -435,32 +438,32 @@
             // 
             // chart1
             // 
-            chartArea13.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea13);
-            legend13.Name = "Legend1";
-            this.chart1.Legends.Add(legend13);
+            chartArea19.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea19);
+            legend19.Name = "Legend1";
+            this.chart1.Legends.Add(legend19);
             this.chart1.Location = new System.Drawing.Point(661, 44);
             this.chart1.Name = "chart1";
-            series13.ChartArea = "ChartArea1";
-            series13.Legend = "Legend1";
-            series13.Name = "Series1";
-            this.chart1.Series.Add(series13);
+            series19.ChartArea = "ChartArea1";
+            series19.Legend = "Legend1";
+            series19.Name = "Series1";
+            this.chart1.Series.Add(series19);
             this.chart1.Size = new System.Drawing.Size(350, 236);
             this.chart1.TabIndex = 14;
             this.chart1.Text = "chart1";
             // 
             // chart2
             // 
-            chartArea14.Name = "ChartArea1";
-            this.chart2.ChartAreas.Add(chartArea14);
-            legend14.Name = "Legend1";
-            this.chart2.Legends.Add(legend14);
+            chartArea20.Name = "ChartArea1";
+            this.chart2.ChartAreas.Add(chartArea20);
+            legend20.Name = "Legend1";
+            this.chart2.Legends.Add(legend20);
             this.chart2.Location = new System.Drawing.Point(661, 318);
             this.chart2.Name = "chart2";
-            series14.ChartArea = "ChartArea1";
-            series14.Legend = "Legend1";
-            series14.Name = "Series1";
-            this.chart2.Series.Add(series14);
+            series20.ChartArea = "ChartArea1";
+            series20.Legend = "Legend1";
+            series20.Name = "Series1";
+            this.chart2.Series.Add(series20);
             this.chart2.Size = new System.Drawing.Size(350, 235);
             this.chart2.TabIndex = 15;
             this.chart2.Text = "chart2";
@@ -469,11 +472,21 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(430, 296);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(145, 12);
+            this.label5.TabIndex = 16;
+            this.label5.Text = "Number of connected region: ";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1055, 638);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.chart2);
             this.Controls.Add(this.chart1);
             this.Controls.Add(this.label4);
@@ -555,6 +568,7 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart chart2;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.Label label5;
     }
 }
 
