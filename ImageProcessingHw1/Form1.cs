@@ -18,16 +18,25 @@ namespace ImageProcessingHw1
         public Form1()
         {
             InitializeComponent();
+            label3.Visible = false;
+            label4.Visible = false;
+            chart1.Visible = false;
+            chart2.Visible = false;
         }
 
         private void button17_Click(object sender, EventArgs e)
         {
             openFileDialog1.Filter = "All Files|*.*|Bitmap Files (.bmp)|*.bmp|Jpeg File(.jpg)|*.jpg";
+            label3.Visible = false;
+            label4.Visible = false;
+            chart1.Visible = false;
+            chart2.Visible = false;
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 openImg = new Bitmap(openFileDialog1.FileName);
                 pictureBox1.Image = openImg;
                 pictureBox2.Image = openImg;
+                processImg = openImg;
                 lastImg = openImg;
             }
         }
@@ -46,6 +55,7 @@ namespace ImageProcessingHw1
         private void button15_Click(object sender, EventArgs e)
         {
             pictureBox2.Image = lastImg;
+            processImg = lastImg;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -115,6 +125,7 @@ namespace ImageProcessingHw1
 
         private void button8_Click(object sender, EventArgs e)
         {
+            lastImg = processImg;
             Bitmap MeanSmoothImage = new Bitmap(openImg.Width, openImg.Height);
 
             for (int y = 0; y < openImg.Height - 2; y++)
@@ -136,16 +147,16 @@ namespace ImageProcessingHw1
             }
             pictureBox2.Image = MeanSmoothImage;
             processImg = MeanSmoothImage;
-            lastImg = MeanSmoothImage;
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
-            Bitmap MedianSmoothImage = new Bitmap(openImg.Width, openImg.Height);
+            lastImg = processImg;
+            Bitmap MedianSmoothImage = new Bitmap(processImg.Width, processImg.Height);
 
-            for (int y = 0; y < openImg.Height - 2; y++)
+            for (int y = 0; y < processImg.Height - 2; y++)
             {
-                for (int x = 0; x < openImg.Width - 2; x++)
+                for (int x = 0; x < processImg.Width - 2; x++)
                 {
                     int[] r_sum = new int[9];
                     int[] g_sum = new int[9];
@@ -154,9 +165,9 @@ namespace ImageProcessingHw1
                     {
                         for (int j = 0; j < 3; j++)
                         {
-                            r_sum[i * 3 + j] += Convert.ToInt32(openImg.GetPixel(x + j, y + i).R);
-                            g_sum[i * 3 + j] += Convert.ToInt32(openImg.GetPixel(x + j, y + i).G);
-                            b_sum[i * 3 + j] += Convert.ToInt32(openImg.GetPixel(x + j, y + i).B);
+                            r_sum[i * 3 + j] += Convert.ToInt32(processImg.GetPixel(x + j, y + i).R);
+                            g_sum[i * 3 + j] += Convert.ToInt32(processImg.GetPixel(x + j, y + i).G);
+                            b_sum[i * 3 + j] += Convert.ToInt32(processImg.GetPixel(x + j, y + i).B);
                         }
                     }
                     Array.Sort(r_sum);
@@ -167,12 +178,17 @@ namespace ImageProcessingHw1
             }
             pictureBox2.Image = MedianSmoothImage;
             processImg = MedianSmoothImage;
-            lastImg = MedianSmoothImage;
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
-            Bitmap HistogramEqualizationImage = new Bitmap(openImg.Width, openImg.Height);
+            lastImg = processImg;
+            Bitmap HistogramEqualizationImage = new Bitmap(processImg.Width, processImg.Height);
+
+            label3.Visible = true;
+            label4.Visible = true;
+            chart1.Visible = true;
+            chart2.Visible = true;
 
             int grayLevel = 256;
             double[] CountingTimes = new double[grayLevel];
@@ -180,11 +196,11 @@ namespace ImageProcessingHw1
             double[] Probability = new double[grayLevel];
             int pixelNum = 0;
 
-            for (int y = 0; y < openImg.Height; y++)
+            for (int y = 0; y < processImg.Height; y++)
             {
-                for (int x = 0; x < openImg.Width; x++)
+                for (int x = 0; x < processImg.Width; x++)
                 {
-                    CountingTimes[openImg.GetPixel(x, y).R]++;
+                    CountingTimes[processImg.GetPixel(x, y).R]++;
                     pixelNum++;
                 }
             }
@@ -204,11 +220,11 @@ namespace ImageProcessingHw1
                 }
             }
 
-            for (int y = 0; y < openImg.Height; y++)
+            for (int y = 0; y < processImg.Height; y++)
             {
-                for (int x = 0; x < openImg.Width; x++)
+                for (int x = 0; x < processImg.Width; x++)
                 {
-                    int s = (int)Math.Round(Probability[openImg.GetPixel(x, y).R]);
+                    int s = (int)Math.Round(Probability[processImg.GetPixel(x, y).R]);
                     HistogramEqualizationImage.SetPixel(x, y, Color.FromArgb(s, s, s));
 
                 }
@@ -221,23 +237,191 @@ namespace ImageProcessingHw1
             }
             pictureBox2.Image = HistogramEqualizationImage;
             processImg = HistogramEqualizationImage;
-            lastImg = HistogramEqualizationImage;
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
+            lastImg = processImg;
             Bitmap ThresholdImage = new Bitmap(openImg.Width, openImg.Height);
 
+            int threshold = trackBar1.Value;
             for (int y = 0; y < openImg.Height - 2; y++)
             {
                 for (int x = 0; x < openImg.Width - 2; x++)
                 {
                     Color RGB = openImg.GetPixel(x, y);
+                    if (RGB.R < threshold)
+                    {
+                        ThresholdImage.SetPixel(x, y, Color.FromArgb(0, 0, 0));
+                    }
+                    else
+                    {
+                        ThresholdImage.SetPixel(x, y, Color.FromArgb(255, 255, 255));
+                    }
                 }
             }
             pictureBox2.Image = ThresholdImage;
             processImg = ThresholdImage;
-            lastImg = ThresholdImage;
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            lastImg = processImg;
+            Bitmap SobelVerticalImage = new Bitmap(processImg.Width, processImg.Height);
+
+            int[] filter = new int[] { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
+            for (int y = 0; y < processImg.Height - 2; y++)
+            {
+                for (int x = 0; x < processImg.Width - 2; x++)
+                {
+                    int r_sum = 0, g_sum = 0, b_sum = 0;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        for (int j = 0; j < 3; j++)
+                        {
+                            r_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).R * filter[i * 3 + j]);
+                            g_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).G * filter[i * 3 + j]);
+                            b_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).B * filter[i * 3 + j]);
+                        }
+                    }
+                    if (r_sum > 255) r_sum = 255;
+                    else if(r_sum < 0) r_sum = 0;
+                    if (g_sum > 255) g_sum = 255;
+                    else if (g_sum < 0) g_sum = 0;
+                    if (b_sum > 255) b_sum = 255;
+                    else if (b_sum < 0) b_sum = 0;
+
+                    SobelVerticalImage.SetPixel(x, y, Color.FromArgb(r_sum, g_sum, b_sum));
+                }
+            }
+            pictureBox2.Image = SobelVerticalImage;
+            processImg = SobelVerticalImage;
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            lastImg = processImg;
+            Bitmap SobelHorizontalImage = new Bitmap(processImg.Width, processImg.Height);
+
+            int[] filter = new int[] { -1, -2, -1, 0, 0, 0, 1, 2, 1 };
+            for (int y = 0; y < processImg.Height - 2; y++)
+            {
+                for (int x = 0; x < processImg.Width - 2; x++)
+                {
+                    int r_sum = 0, g_sum = 0, b_sum = 0;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        for (int j = 0; j < 3; j++)
+                        {
+                            r_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).R * filter[i * 3 + j]);
+                            g_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).G * filter[i * 3 + j]);
+                            b_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).B * filter[i * 3 + j]);
+                        }
+                    }
+                    if (r_sum > 255) r_sum = 255;
+                    else if (r_sum < 0) r_sum = 0;
+                    if (g_sum > 255) g_sum = 255;
+                    else if (g_sum < 0) g_sum = 0;
+                    if (b_sum > 255) b_sum = 255;
+                    else if (b_sum < 0) b_sum = 0;
+
+                    SobelHorizontalImage.SetPixel(x, y, Color.FromArgb(r_sum, g_sum, b_sum));
+                }
+            }
+            pictureBox2.Image = SobelHorizontalImage;
+            processImg = SobelHorizontalImage;
+        }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            lastImg = processImg;
+            Bitmap SobelCombinedImage = new Bitmap(processImg.Width, processImg.Height);
+
+            int[] v_filter = new int[] { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
+            int[] h_filter = new int[] { -1, -2, -1, 0, 0, 0, 1, 2, 1 };
+            for (int y = 0; y < processImg.Height - 2; y++)
+            {
+                for (int x = 0; x < processImg.Width - 2; x++)
+                {
+                    int r_sum = 0, g_sum = 0, b_sum = 0;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        for (int j = 0; j < 3; j++)
+                        {
+                            r_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).R * v_filter[i * 3 + j]);
+                            g_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).G * v_filter[i * 3 + j]);
+                            b_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).B * v_filter[i * 3 + j]);
+                            
+                            r_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).R * h_filter[i * 3 + j]);
+                            g_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).G * h_filter[i * 3 + j]);
+                            b_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).B * h_filter[i * 3 + j]);
+                        }
+                    }
+                    if (r_sum > 255) r_sum = 255;
+                    else if (r_sum < 0) r_sum = 0;
+                    if (g_sum > 255) g_sum = 255;
+                    else if (g_sum < 0) g_sum = 0;
+                    if (b_sum > 255) b_sum = 255;
+                    else if (b_sum < 0) b_sum = 0;
+
+                    SobelCombinedImage.SetPixel(x, y, Color.FromArgb(r_sum, g_sum, b_sum));
+                }
+            }
+            pictureBox2.Image = SobelCombinedImage;
+            processImg = SobelCombinedImage;
+        }
+
+        private void button12_Click(object sender, EventArgs e)
+        {
+            lastImg = processImg;
+            Bitmap ThresholdOverlapImage = new Bitmap(processImg.Width, processImg.Height);
+
+            int threshold = trackBar2.Value;
+            int[] v_filter = new int[] { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
+            int[] h_filter = new int[] { -1, -2, -1, 0, 0, 0, 1, 2, 1 };
+
+            for (int y = 0; y < processImg.Height - 2; y++)
+            {
+                for (int x = 0; x < processImg.Width - 2; x++)
+                {
+                    Color RGB = processImg.GetPixel(x, y);
+                    int r_sum = 0, g_sum = 0, b_sum = 0;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        for (int j = 0; j < 3; j++)
+                        {
+                            r_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).R * v_filter[i * 3 + j]);
+                            g_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).G * v_filter[i * 3 + j]);
+                            b_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).B * v_filter[i * 3 + j]);
+
+                            r_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).R * h_filter[i * 3 + j]);
+                            g_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).G * h_filter[i * 3 + j]);
+                            b_sum += Convert.ToInt32(processImg.GetPixel(x + j, y + i).B * h_filter[i * 3 + j]);
+                        }
+                    }
+                    if (r_sum > 255) r_sum = 255;
+                    else if (r_sum < 0) r_sum = 0;
+                    if (g_sum > 255) g_sum = 255;
+                    else if (g_sum < 0) g_sum = 0;
+                    if (b_sum > 255) b_sum = 255;
+                    else if (b_sum < 0) b_sum = 0;
+
+                    if (r_sum < threshold)
+                    {
+                        ThresholdOverlapImage.SetPixel(x, y, Color.FromArgb(0, 0, 0));
+                    }
+                    else
+                    {
+                        ThresholdOverlapImage.SetPixel(x, y, Color.FromArgb(255, 255, 255));
+                    }
+                    if (ThresholdOverlapImage.GetPixel(x, y).R == 255)
+                    {
+                        ThresholdOverlapImage.SetPixel(x, y, Color.FromArgb(0, 255, 0));
+                    }
+                }
+            }
+            pictureBox2.Image = ThresholdOverlapImage;
+            processImg = ThresholdOverlapImage;
         }
     }
 }
