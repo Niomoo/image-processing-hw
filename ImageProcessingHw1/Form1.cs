@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,11 +38,22 @@ namespace ImageProcessingHw1
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                openImg = new Bitmap(openFileDialog1.FileName);
-                pictureBox1.Image = openImg;
-                pictureBox2.Image = openImg;
-                processImg = openImg;
-                lastImg = openImg;
+                if (openFileDialog1.FileNames.Length == 1)
+                {
+                    openImg = new Bitmap(openFileDialog1.FileName);
+                    pictureBox1.Image = openImg;
+                    pictureBox2.Image = openImg;
+                    processImg = openImg;
+                    lastImg = openImg;
+                } 
+                else if (openFileDialog1.FileNames.Length == 2)
+                {
+                    openImg = new Bitmap(openFileDialog1.FileNames[0]);
+                    processImg = new Bitmap(openFileDialog1.FileNames[1]);
+                    pictureBox1.Image = openImg;
+                    pictureBox2.Image = processImg;
+                    lastImg = openImg;
+                }
             }
         }
 
@@ -378,7 +390,8 @@ namespace ImageProcessingHw1
         private void button12_Click(object sender, EventArgs e)
         {
             lastImg = processImg;
-            Bitmap ThresholdOverlapImage = new Bitmap(processImg.Width, processImg.Height);
+            Bitmap OverlapImage = new Bitmap(processImg.Width, processImg.Height);
+            Bitmap ThresholdOverlapImage = processImg;
 
             int threshold = trackBar2.Value;
             int[] v_filter = new int[] { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
@@ -412,13 +425,13 @@ namespace ImageProcessingHw1
 
                     if (r_sum < threshold)
                     {
-                        ThresholdOverlapImage.SetPixel(x, y, Color.FromArgb(0, 0, 0));
+                        OverlapImage.SetPixel(x, y, Color.FromArgb(0, 0, 0));
                     }
                     else
                     {
-                        ThresholdOverlapImage.SetPixel(x, y, Color.FromArgb(255, 255, 255));
+                        OverlapImage.SetPixel(x, y, Color.FromArgb(255, 255, 255));
                     }
-                    if (ThresholdOverlapImage.GetPixel(x, y).R == 255)
+                    if (OverlapImage.GetPixel(x, y).R == 255)
                     {
                         ThresholdOverlapImage.SetPixel(x, y, Color.FromArgb(0, 255, 0));
                     }
@@ -431,7 +444,7 @@ namespace ImageProcessingHw1
         private void button13_Click(object sender, EventArgs e)
         {
             connectedImg = new Bitmap(openImg.Width, openImg.Height);
-            connectedImg = openImg.Clone(new Rectangle(0, 0, openImg.Width, openImg.Height), System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            connectedImg = openImg.Clone(new Rectangle(0, 0, openImg.Width, openImg.Height), PixelFormat.Format24bppRgb);
 
             int count = 0;
             for (int y = 0; y < openImg.Height; y++)
@@ -456,7 +469,7 @@ namespace ImageProcessingHw1
             else if (connectedImg.GetPixel(j, i).R == 0)
             {
                 Random r = new Random();
-                connectedImg.SetPixel(j, i, Color.FromArgb(r.Next(256), r.Next(256), r.Next(256)));
+                connectedImg.SetPixel(j, i, Color.FromArgb(r.Next(255), r.Next(255), r.Next(255)));
 
                 if (i > 0 && j > 0) { findConnected(i - 1, j - 1); }                                   // 左上
                 if (i > 0) { findConnected(i - 1, j); }                                                // 上
