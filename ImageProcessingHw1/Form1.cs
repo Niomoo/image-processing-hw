@@ -22,9 +22,11 @@ namespace ImageProcessingHw1
             InitializeComponent();
             label3.Visible = false;
             label4.Visible = false;
+            label5.Visible = false;
+            label6.Visible = false;
             chart1.Visible = false;
             chart2.Visible = false;
-            label5.Visible = false;
+            pictureBox3.Visible = false;
         }
 
         private void button17_Click(object sender, EventArgs e)
@@ -33,8 +35,10 @@ namespace ImageProcessingHw1
             label3.Visible = false;
             label4.Visible = false;
             label5.Visible = false;
+            label6.Visible = false;
             chart1.Visible = false;
             chart2.Visible = false;
+            pictureBox3.Visible = false;
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
@@ -484,7 +488,8 @@ namespace ImageProcessingHw1
 
         private void button14_Click(object sender, EventArgs e)
         {
-            lastImg = processImg;
+            label6.Visible = true;
+            pictureBox3.Visible = true;
             Bitmap RegistrationImage = new Bitmap(openImg.Width, openImg.Height);
 
             for (int y = 0; y < openImg.Height - 2; y++)
