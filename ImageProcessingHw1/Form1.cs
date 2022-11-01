@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,6 +18,9 @@ namespace ImageProcessingHw1
         private Bitmap processImg;
         private Bitmap lastImg;
         private Bitmap connectedImg;
+        List<Point> pointsA;
+        List<Point> pointsB;
+
         public Form1()
         {
             InitializeComponent();
@@ -27,6 +31,8 @@ namespace ImageProcessingHw1
             chart1.Visible = false;
             chart2.Visible = false;
             pictureBox3.Visible = false;
+            pointsA = new List<Point>();
+            pointsB = new List<Point>();
         }
 
         private void button17_Click(object sender, EventArgs e)
@@ -490,17 +496,141 @@ namespace ImageProcessingHw1
         {
             label6.Visible = true;
             pictureBox3.Visible = true;
-            Bitmap RegistrationImage = new Bitmap(openImg.Width, openImg.Height);
 
-            for (int y = 0; y < openImg.Height - 2; y++)
+            double length_a = Math.Round(Math.Sqrt(Math.Pow((pointsA[0].X - pointsA[1].X), 2) + Math.Pow((pointsA[0].Y - pointsA[1].Y), 2))); // 原圖長
+            double width_a = Math.Round(Math.Sqrt(Math.Pow((pointsA[0].X - pointsA[2].X), 2) + Math.Pow((pointsA[0].Y - pointsA[2].Y), 2)));  // 原圖寬
+
+            double length_b = Math.Round(Math.Sqrt(Math.Pow((pointsB[0].X - pointsB[1].X), 2) + Math.Pow((pointsB[0].Y - pointsB[1].Y), 2)));
+            double width_b = Math.Round(Math.Sqrt(Math.Pow((pointsB[0].X - pointsB[2].X), 2) + Math.Pow((pointsB[0].Y - pointsB[2].Y), 2)));
+
+            float scale_x = (float)(length_a / length_b);
+            float scale_y = (float)(width_a / width_b);
+
+            double[] scaler = new double[] { scale_x, 0, 0, 0, scale_y, 0, 0, 0, 1 };
+
+            int scaled_width = (int)(processImg.Width * scale_x);
+            int scaled_height = (int)(processImg.Height * scale_y);
+            
+            Bitmap scaledImage = new Bitmap(scaled_width, scaled_height);
+
+            for (int y = 0; y < scaled_height - 2; y++)
             {
-                for (int x = 0; x < openImg.Width - 2; x++)
+                for (int x = 0; x < scaled_width - 2; x++)
                 {
-                    Color RGB = openImg.GetPixel(x, y);
+                    int px = (int)(x / scale_x);
+                    int py = (int)(y / scale_y);
+                    if (py >= 0 && py < scaled_height && px >= 0 && px < scaled_width)
+                    {
+                        Color scaledColor = processImg.GetPixel(px, py);
+                        scaledImage.SetPixel(x, y, Color.FromArgb(scaledColor.R, scaledColor.G, scaledColor.B));
+                    }
                 }
             }
-            pictureBox2.Image = RegistrationImage;
-            processImg = RegistrationImage;
+
+            double angle_a = Math.Atan2(pointsA[0].X - pointsA[1].X, pointsA[0].Y - pointsA[1].Y);
+            double angle_b = Math.Atan2(pointsB[0].X - pointsB[1].X, pointsB[0].Y - pointsB[1].Y);
+            float rotate = (float)(angle_b - angle_a);
+
+            int result_width = getNewWidth(scaled_width, scaled_height, rotate);
+            int result_height= getNewHeight(scaled_width, scaled_height, rotate);
+            Bitmap RegistrationImage = new Bitmap(result_width, result_height);
+
+            double halfLastWidth = 0.5 * (scaled_width);
+            double halfLastHeight = 0.5 * (scaled_height);
+            double halfResultWidth = 0.5 * (result_width);
+            double halfResultHeight = 0.5 * (result_height);
+
+            double shiftX = -halfResultWidth * Math.Cos(rotate) - halfResultHeight * Math.Sin(rotate) + halfLastWidth;
+            double shiftY = halfResultWidth * Math.Sin(rotate) - halfResultHeight * Math.Cos(rotate) + halfLastHeight;
+
+            for (int y = 0; y < result_height; y++)
+            {
+                for (int x = 0; x < result_width; x++)
+                {
+                    int px = (int)(x * Math.Cos(rotate) + y * Math.Sin(rotate) + shiftX);
+                    int py = (int)(-x * Math.Sin(rotate) + y * Math.Cos(rotate) + shiftY);
+                    if(py >= 0 && py < scaled_height && px >= 0 && px < scaled_width)
+                    {
+                        Color resultColor = scaledImage.GetPixel(px, py);
+                        RegistrationImage.SetPixel(x, y, Color.FromArgb(resultColor.R, resultColor.G, resultColor.B));
+                    }
+                }
+            }
+
+            pictureBox3.Image = RegistrationImage;
+        }
+
+        private int getNewHeight(int width, int height, double rotateRad)
+        {
+            double x_bound1 = 0;
+            double y_bound1 = 0;
+
+            double x_bound2 = width;
+            double y_bound2 = 0;
+
+            double x_bound3 = width;
+            double y_bound3 = height;
+
+            double x_bound4 = 0;
+            double y_bound4 = height;
+
+            double ny_bound1 = Math.Sin(rotateRad) * x_bound1 + Math.Cos(rotateRad) * y_bound1;
+            double ny_bound2 = Math.Sin(rotateRad) * x_bound2 + Math.Cos(rotateRad) * y_bound2;
+            double ny_bound3 = Math.Sin(rotateRad) * x_bound3 + Math.Cos(rotateRad) * y_bound3;
+            double ny_bound4 = Math.Sin(rotateRad) * x_bound4 + Math.Cos(rotateRad) * y_bound4;
+
+
+            double y_max = Math.Max(ny_bound1, Math.Max(ny_bound2, Math.Max(ny_bound3, ny_bound4)));
+            double y_min = Math.Min(ny_bound1, Math.Min(ny_bound2, Math.Min(ny_bound3, ny_bound4)));
+
+            return (int)(y_max - y_min);
+        }
+        private int getNewWidth(int width, int height, double rotateRad)
+        {
+            double x_bound1 = 0;
+            double y_bound1 = 0;
+
+            double x_bound2 = width;
+            double y_bound2 = 0;
+
+            double x_bound3 = width;
+            double y_bound3 = height;
+
+            double x_bound4 = 0;
+            double y_bound4 = height;
+
+            double nx_bound1 = Math.Cos(rotateRad) * x_bound1 - Math.Sin(rotateRad) * y_bound1;
+            double nx_bound2 = Math.Cos(rotateRad) * x_bound2 - Math.Sin(rotateRad) * y_bound2;
+            double nx_bound3 = Math.Cos(rotateRad) * x_bound3 - Math.Sin(rotateRad) * y_bound3;
+            double nx_bound4 = Math.Cos(rotateRad) * x_bound4 - Math.Sin(rotateRad) * y_bound4;
+
+            double x_max = Math.Max(nx_bound1, Math.Max(nx_bound2, Math.Max(nx_bound3, nx_bound4)));
+            double x_min = Math.Min(nx_bound1, Math.Min(nx_bound2, Math.Min(nx_bound3, nx_bound4)));
+
+            return (int)(x_max - x_min);
+
+        }
+
+        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+        {
+            Graphics g = pictureBox1.CreateGraphics();
+            if (e.Button == MouseButtons.Left)
+            {
+                g.FillEllipse(Brushes.Red, e.X - 5, e.Y - 5, 15, 15);
+                Point pointA = new Point(e.X - 5, e.Y - 5);
+                pointsA.Add(pointA);
+            }
+        }
+
+        private void pictureBox2_MouseDown(object sender, MouseEventArgs e)
+        {
+            Graphics g = pictureBox2.CreateGraphics();
+            if (e.Button == MouseButtons.Left)
+            {
+                g.FillEllipse(Brushes.Red, e.X - 5, e.Y - 5, 15, 15);
+                Point pointB = new Point(e.X - 5, e.Y - 5);
+                pointsB.Add(pointB);
+            }
         }
     }
 }
