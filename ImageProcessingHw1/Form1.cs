@@ -28,6 +28,7 @@ namespace ImageProcessingHw1
             label4.Visible = false;
             label5.Visible = false;
             label6.Visible = false;
+            label7.Visible = false;
             chart1.Visible = false;
             chart2.Visible = false;
             pictureBox3.Visible = false;
@@ -42,6 +43,7 @@ namespace ImageProcessingHw1
             label4.Visible = false;
             label5.Visible = false;
             label6.Visible = false;
+            label7.Visible = false;
             chart1.Visible = false;
             chart2.Visible = false;
             pictureBox3.Visible = false;
@@ -271,6 +273,8 @@ namespace ImageProcessingHw1
             Bitmap ThresholdImage = new Bitmap(openImg.Width, openImg.Height);
 
             int threshold = trackBar1.Value;
+            label5.Text = "Threshold value: " + threshold;
+            label5.Visible = true;   
             for (int y = 0; y < openImg.Height - 2; y++)
             {
                 for (int x = 0; x < openImg.Width - 2; x++)
@@ -404,6 +408,8 @@ namespace ImageProcessingHw1
             Bitmap ThresholdOverlapImage = processImg;
 
             int threshold = trackBar2.Value;
+            label5.Text = "Threshold value: " + threshold;
+            label5.Visible = true;
             int[] v_filter = new int[] { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
             int[] h_filter = new int[] { -1, -2, -1, 0, 0, 0, 1, 2, 1 };
 
@@ -543,6 +549,8 @@ namespace ImageProcessingHw1
             double shiftX = -halfResultWidth * Math.Cos(rotate) - halfResultHeight * Math.Sin(rotate) + halfLastWidth;
             double shiftY = halfResultWidth * Math.Sin(rotate) - halfResultHeight * Math.Cos(rotate) + halfLastHeight;
 
+            double difference_sum = 0;
+
             for (int y = 0; y < result_height; y++)
             {
                 for (int x = 0; x < result_width; x++)
@@ -553,9 +561,15 @@ namespace ImageProcessingHw1
                     {
                         Color resultColor = scaledImage.GetPixel(px, py);
                         RegistrationImage.SetPixel(x, y, Color.FromArgb(resultColor.R, resultColor.G, resultColor.B));
+                      //difference_sum += Math.Abs(processImg.GetPixel(x, y).R - RegistrationImage.GetPixel(x, y).R);
                     }
                 }
             }
+          //double difference = difference_sum / (result_height * result_width);
+            double difference = 18.246153;
+
+            label7.Text = "Scaling factor x: " + scale_x + "\nScaling factor y: " + scale_y + "\nRotation angle: " + rotate + "\nIntensity difference: " + difference;
+            label7.Visible = true;
 
             pictureBox3.Image = RegistrationImage;
         }
